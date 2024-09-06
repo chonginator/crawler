@@ -37,12 +37,9 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		return
 	}
 
-	if _, visited := cfg.pages[normalizedCurrentURL]; visited {
-		cfg.pages[normalizedCurrentURL]++
+	if isFirst := cfg.addPageVisit(normalizedCurrentURL); !isFirst {
 		return
 	}
-
-	cfg.pages[normalizedCurrentURL] = 1
 
 	fmt.Printf("crawling %s\n", rawCurrentURL)
 
@@ -62,5 +59,10 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 }
 
 func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
+	if _, visited := cfg.pages[normalizedURL]; visited {
+		cfg.pages[normalizedURL]++
+		return false
+	}
+	cfg.pages[normalizedURL] = 1
 	return true
 }
