@@ -14,16 +14,15 @@ type config struct {
 	wg *sync.WaitGroup
 }
 
-func (cfg *config) crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]int) {
-	// TODO: Remove redundant rawBaseURL and pages parameters
-	baseURL, err := url.Parse(rawBaseURL)
+func (cfg *config) crawlPage(rawCurrentURL string) {
+	baseURL, err := url.Parse(cfg.baseURL.String())
 	if err != nil {
-		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", rawBaseURL, err)
+		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", cfg.baseURL.String(), err)
 		return
 	}
 	currentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
-		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", rawBaseURL, err)
+		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", cfg.baseURL.String(), err)
 		return
 	}
 
@@ -38,12 +37,12 @@ func (cfg *config) crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]
 		return
 	}
 
-	if _, visited := pages[normalizedCurrentURL]; visited {
-		pages[normalizedCurrentURL]++
+	if _, visited := cfg.pages[normalizedCurrentURL]; visited {
+		cfg.pages[normalizedCurrentURL]++
 		return
 	}
 
-	pages[normalizedCurrentURL] = 1
+	cfg.pages[normalizedCurrentURL] = 1
 
 	fmt.Printf("crawling %s\n", rawCurrentURL)
 
@@ -58,7 +57,7 @@ func (cfg *config) crawlPage(rawBaseURL, rawCurrentURL string, pages map[string]
 	}
 
 	for _, URL := range URLs {
-		cfg.crawlPage(rawBaseURL, URL, pages)
+		cfg.crawlPage(URL)
 	}
 }
 

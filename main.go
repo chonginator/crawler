@@ -22,7 +22,6 @@ func main() {
 
 	fmt.Printf("starting crawl of: %s...\n", rawBaseURL)
 
-	pages := make(map[string]int)
 	baseURL, err := url.Parse(rawBaseURL)
 	if err != nil {
 		fmt.Printf("error parsing base URL '%s': %v", baseURL, err)
@@ -36,9 +35,9 @@ func main() {
 		&sync.WaitGroup{},
 	}
 
-	cfg.crawlPage(rawBaseURL, rawBaseURL, pages)
+	cfg.crawlPage(cfg.baseURL.String())
 
-	for normalizedURL, count := range pages {
+	for normalizedURL, count := range cfg.pages {
 		fmt.Printf("%d - %s\n", count, normalizedURL)
 	}
 }
