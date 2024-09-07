@@ -27,15 +27,26 @@ func main() {
 		fmt.Printf("error parsing base URL '%s': %v", baseURL, err)
 	}
 
+	const maxConcurrency = 10
+
 	cfg := config{
 		make(map[string]int),
 		baseURL,
 		&sync.Mutex{},
-		make(chan struct{}),
+		make(chan struct{}, maxConcurrency),
 		&sync.WaitGroup{},
 	}
 
-	cfg.crawlPage(cfg.baseURL.String())
+	cfg.wg.Add(1)
+	go func() {
+		cfg.concurrencyControl <-struct{}{}
+		defer func() {
+			<-cfg.concurrencyControl
+			cfg.wg.Done()
+		}()
+		cfg.crawlPage(cfg.baseURL.String())
+	}()
+	cfg.wg.Wait()
 
 	for normalizedURL, count := range cfg.pages {
 		fmt.Printf("%d - %s\n", count, normalizedURL)

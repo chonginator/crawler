@@ -54,11 +54,21 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 	}
 
 	for _, URL := range URLs {
-		cfg.crawlPage(URL)
+		cfg.wg.Add(1)
+		go func(URL string) {
+			cfg.concurrencyControl <-struct{}{}
+			defer func() {
+				<-cfg.concurrencyControl
+				cfg.wg.Done()
+			}()
+			cfg.crawlPage(URL)
+		}(URL)
 	}
 }
 
 func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
 	if _, visited := cfg.pages[normalizedURL]; visited {
 		cfg.pages[normalizedURL]++
 		return false
