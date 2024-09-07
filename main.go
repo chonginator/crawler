@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 )
 
@@ -20,11 +19,6 @@ func main() {
 	rawBaseURL := argsWithoutProg[0]
 
 	fmt.Printf("starting crawl of: %s...\n", rawBaseURL)
-
-	baseURL, err := url.Parse(rawBaseURL)
-	if err != nil {
-		fmt.Printf("error parsing base URL '%s': %v", baseURL, err)
-	}
 
 	const maxConcurrency = 10
 

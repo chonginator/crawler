@@ -6,19 +6,14 @@ import (
 )
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
-	baseURL, err := url.Parse(cfg.baseURL.String())
-	if err != nil {
-		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", cfg.baseURL.String(), err)
-		return
-	}
 	currentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
 		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", cfg.baseURL.String(), err)
 		return
 	}
 
-	if baseURL.Hostname() != currentURL.Hostname() {
-		fmt.Printf("skipping URL '%s' outside of base URL domain '%s'\n", currentURL, baseURL.Hostname())
+	if cfg.baseURL.Hostname() != currentURL.Hostname() {
+		fmt.Printf("skipping URL '%s' outside of base URL domain '%s'\n", currentURL, cfg.baseURL.Hostname())
 		return
 	}
 
@@ -39,7 +34,7 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		fmt.Printf("Error - getHTML: %v\n", err)
 	}
 
-	URLs, err := getURLsFromHTML(htmlBody, rawCurrentURL)
+	URLs, err := getURLsFromHTML(htmlBody, cfg.baseURL)
 	if err != nil {
 		fmt.Printf("Error - getURLsFromHTML: %v\n", err)
 	}
