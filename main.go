@@ -29,14 +29,7 @@ func main() {
 	}
 
 	cfg.wg.Add(1)
-	go func() {
-		cfg.concurrencyControl <-struct{}{}
-		defer func() {
-			<-cfg.concurrencyControl
-			cfg.wg.Done()
-		}()
-		cfg.crawlPage(cfg.baseURL.String())
-	}()
+	go cfg.crawlPage(rawBaseURL)
 	cfg.wg.Wait()
 
 	for normalizedURL, count := range cfg.pages {

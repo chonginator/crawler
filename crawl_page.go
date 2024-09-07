@@ -6,6 +6,12 @@ import (
 )
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
+	cfg.concurrencyControl <-struct{}{}
+	defer func() {
+		<-cfg.concurrencyControl
+		cfg.wg.Done()
+	}()
+
 	currentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
 		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", cfg.baseURL.String(), err)
@@ -41,13 +47,6 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 
 	for _, URL := range URLs {
 		cfg.wg.Add(1)
-		go func(URL string) {
-			cfg.concurrencyControl <-struct{}{}
-			defer func() {
-				<-cfg.concurrencyControl
-				cfg.wg.Done()
-			}()
-			cfg.crawlPage(URL)
-		}(URL)
+		go cfg.crawlPage(URL)
 	}
 }
