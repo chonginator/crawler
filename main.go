@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -10,19 +11,37 @@ func main() {
 
 	if len(argsWithoutProg) < 1 {
 		fmt.Println("no website provided")
-		os.Exit(1)
+		return
 	}
-	if len(argsWithoutProg) > 1 {
+	if len(argsWithoutProg) > 3 {
 		fmt.Println("too many arguments provided")
-		os.Exit(1)
+		return
 	}
 	rawBaseURL := argsWithoutProg[0]
+	
+	maxConcurrency := 3
+	if len(argsWithoutProg) == 2 {
+		var err error
+		maxConcurrency, err = strconv.Atoi(argsWithoutProg[1])
+		if err != nil {
+			fmt.Printf("unable to parse max concurrency command-line arg")
+			os.Exit(1)
+		}
+	}
+
+	maxPages := 100
+	if len(argsWithoutProg) == 3 {
+		var err error
+		maxPages, err = strconv.Atoi(argsWithoutProg[2])
+		if err != nil {
+			fmt.Printf("unable to parse max pages command-line arg")
+			os.Exit(1)
+		}
+	}
 
 	fmt.Printf("starting crawl of: %s...\n", rawBaseURL)
 
-	const maxConcurrency = 10
-
-	cfg, err := configure(rawBaseURL, maxConcurrency)
+	cfg, err := configure(rawBaseURL, maxConcurrency, maxPages)
 	if err != nil {
 		fmt.Printf("Error - configure: %v", err)
 		return
