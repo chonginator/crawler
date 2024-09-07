@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"sync"
 )
 
 func main() {
@@ -29,12 +28,10 @@ func main() {
 
 	const maxConcurrency = 10
 
-	cfg := config{
-		make(map[string]int),
-		baseURL,
-		&sync.Mutex{},
-		make(chan struct{}, maxConcurrency),
-		&sync.WaitGroup{},
+	cfg, err := configure(rawBaseURL, maxConcurrency)
+	if err != nil {
+		fmt.Printf("Error - configure: %v", err)
+		return
 	}
 
 	cfg.wg.Add(1)

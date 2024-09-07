@@ -3,16 +3,7 @@ package main
 import (
 	"fmt"
 	"net/url"
-	"sync"
 )
-
-type config struct {
-	pages map[string]int
-	baseURL *url.URL
-	mu *sync.Mutex
-	concurrencyControl chan struct{}
-	wg *sync.WaitGroup
-}
 
 func (cfg *config) crawlPage(rawCurrentURL string) {
 	baseURL, err := url.Parse(cfg.baseURL.String())
@@ -64,15 +55,4 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 			cfg.crawlPage(URL)
 		}(URL)
 	}
-}
-
-func (cfg *config) addPageVisit(normalizedURL string) (isFirst bool) {
-	cfg.mu.Lock()
-	defer cfg.mu.Unlock()
-	if _, visited := cfg.pages[normalizedURL]; visited {
-		cfg.pages[normalizedURL]++
-		return false
-	}
-	cfg.pages[normalizedURL] = 1
-	return true
 }
